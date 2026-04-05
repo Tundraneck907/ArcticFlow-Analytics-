@@ -1027,3 +1027,70 @@ input:checked+.slider:before {
     gap: var(--space-sm);
   }
 }
+
+.tank-wireframe {
+    height: 100px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.wireframe-mesh {
+    position: absolute;
+    inset: 0;
+    background-image: 
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 8px 8px; /* High-density grid */
+}
+
+.level-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.pulsing-node {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--primary);
+    border-radius: 50%;
+    box-shadow: 0 0 15px var(--primary);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    70% { transform: scale(3); opacity: 0; }
+    100% { transform: scale(1); opacity: 0; }
+}
+
+/* =============================================================
+   V6: STARTUP MASTER SYNC (Advanced Diagnostics + 3D Logic)
+   ============================================================= */
+function initAdvancedVisuals() {
+    // 1. Render the High-Density Digital Cluster
+    renderAssetDiagnostics(); 
+    
+    // 2. Initialize the 3D Map (Placeholder for Mapbox/Three.js)
+    const mapContainer = document.getElementById('arctic-map-3d');
+    if(mapContainer) {
+        mapContainer.innerHTML = `
+            <div class="map-overlay glass">
+                <i data-lucide="map"></i> <span>Live Arctic Mesh: Active</span>
+            </div>
+            <div class="map-mesh-placeholder"></div>
+        `;
+    }
+    lucide.createIcons();
+}
