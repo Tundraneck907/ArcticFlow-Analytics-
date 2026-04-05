@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arcticflow-v2';
+const CACHE_NAME = 'arcticflow-v3';
 const ASSETS = [
   '/',
   '/index.html',
@@ -10,6 +10,7 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
+  self.skipWaiting(); // Force the waiting service worker to become the active service worker
   e.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
@@ -22,7 +23,7 @@ self.addEventListener('fetch', (e) => {
   );
 });
 
-// Cleanup old caches
+// Cleanup old caches and claim clients immediately
 self.addEventListener('activate', (e) => {
   e.waitUntil(
     caches.keys().then((keys) => {
@@ -33,6 +34,6 @@ self.addEventListener('activate', (e) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim()) // Claim all clients to apply new cache logic instantly
   );
 });
