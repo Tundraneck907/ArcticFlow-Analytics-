@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="ArcticFlow Analytics - Smart Fuel Management for Alaska's Harsh Winter">
+  <meta name="keywords"
+    content="arctic, fuel, management, dashboard, property management, winter, cloud, snow, pipeline, dashboard">
+
+  <title>ArcticFlow Analytics - Intelligent Fuel Management</title>
+
+  <!-- External Resources -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+  <!-- Snow Effect Background -->
+  <div id="snowflakes"></div>
+
+  <!-- Login Screen -->
+  <div id="login-screen" class="screen-container">
+    <div class="login-box glass card">
+      <div class="logo-container">
+        <img src="assets/logo.png" alt="ArcticFlow Analytics Logo" class="brand-logo"
+          style="width: 120px; height: 120px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(255,107,53,0.3);">
+        <h1 class="brand-title">ArcticFlow Analytics</h1>
+        <p class="brand-subtitle">Intelligent Fuel Management for Alaska</p>
+      </div>
+
+      <div class="form-group">
+        <label for="login-email">Email</label>
+        <input type="email" id="login-email" value="demo@arcticflow.io" class="input-field">
+      </div>
+      <div class="form-group">
+        <label for="login-password">Password</label>
+        <input type="password" id="login-password" value="demo123" class="input-field">
+      </div>
+
+      <button onclick="handleLogin()" class="btn btn-primary w-full pulse-btn">
+        Sign In
+      </button>
+
+      <div class="login-footer">
+        <a href="#" class="link">Forgot password?</a>
+        <p class="demo-note">Demo: Use any credentials</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main App Dashboard -->
+  <div id="app" class="hidden">
+    <!-- Header Navigation -->
+    <header class="top-nav glass-nav header-blur">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <img src="assets/logo.png" alt="Logo" style="width: 40px; height: 40px; border-radius: 8px;">
+          <div class="nav-title-group">
+            <h1 class="nav-title">ArcticFlow</h1>
+            <span class="nav-badge">Analytics</span>
+          </div>
+        </div>
+
+        <div class="nav-actions">
+          <button onclick="showAlerts()" class="notification-btn relative-box">
+            <i data-lucide="bell"></i>
+            <span id="alert-count" class="alert-badge hidden">3</span>
+          </button>
+
+          <div class="user-profile">
+            <div class="avatar">DM</div>
+            <span class="username hide-mobile">Demo User</span>
+            <button onclick="handleLogout()" class="logout-btn">
+              <i data-lucide="log-out"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="dashboard-layout">
+      <!-- Tabs Navigation -->
+      <nav class="tabs-nav scroll-hide">
+        <button onclick="switchTab('overview')" id="tab-overview" class="tab-btn active">Overview</button>
+        <button onclick="switchTab('properties')" id="tab-properties" class="tab-btn">Properties</button>
+        <button onclick="switchTab('tanks')" id="tab-tanks" class="tab-btn">Tanks</button>
+        <button onclick="switchTab('weather')" id="tab-weather" class="tab-btn">Weather</button>
+        <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn">Analytics</button>
+        <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn">Settings</button>
+      </nav>
+
+      <main class="main-content">
+        <!-- Tab: Overview -->
+        <section id="tab-overview-content" class="tab-content active transition-fade">
+          <div class="kpi-grid">
+            <div class="glass card kpi-card pattern-overlay">
+              <h3>Total Properties</h3>
+              <div id="stat-properties" class="kpi-value">0</div>
+              <p class="kpi-label">Active Monitored Sites</p>
+            </div>
+
+            <div class="glass card kpi-card pattern-overlay">
+              <h3>Fuel Tanks</h3>
+              <div id="stat-tanks" class="kpi-value">0</div>
+              <p class="kpi-label">Sensors Online</p>
+            </div>
+
+            <div class="glass card kpi-card pattern-overlay">
+              <h3>Avg Tank Level</h3>
+              <div id="stat-avg" class="kpi-value">0%</div>
+              <p class="kpi-label">System-Wide Health</p>
+            </div>
+
+            <div class="glass card kpi-card pattern-overlay alert-bg">
+              <h3>Critical Alerts</h3>
+              <div id="stat-alerts" class="kpi-value alert-text">0</div>
+              <p class="kpi-label">Action Required</p>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <div class="glass card fuel-levels-panel glow-border">
+              <h2 class="section-title">Critical Tank Levels</h2>
+              <div id="gauges-grid" class="gauges-grid">
+                <!-- Javascript will populate gauges here -->
+              </div>
+            </div>
+
+            <div class="side-panels">
+              <div class="glass card">
+                <h2 class="section-title">
+                  <i data-lucide="cloud-snow" class="text-blue"></i>
+                  Weather Impact
+                </h2>
+                <div id="weather-content" class="weather-summary">
+                  <!-- Javascript will populate weather here -->
+                </div>
+              </div>
+
+              <div class="glass card emergency-panel danger-gradient">
+                <h2 class="section-title">
+                  <i data-lucide="phone-call" class="text-orange"></i>
+                  Emergency
+                </h2>
+                <div id="emergency-directory" class="emergency-list">
+                  <div class="contact-item">
+                    <span>Carl's Fuel Delivery</span>
+                    <strong>(907) 555-0198</strong>
+                  </div>
+                  <div class="contact-item">
+                    <span>AK Plumbing/Heating</span>
+                    <strong>(907) 555-8821</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab: Properties -->
+        <section id="tab-properties-content" class="tab-content hidden transition-fade">
+          <div class="section-header">
+            <h2 class="section-title">My Properties</h2>
+            <button onclick="openPropertyModal()" class="btn btn-primary pulse-btn">
+              <i data-lucide="plus"></i> Add Property
+            </button>
+          </div>
+          <div id="properties-list" class="properties-grid"></div>
+        </section>
+
+        <!-- Tab: Tanks -->
+        <section id="tab-tanks-content" class="tab-content hidden transition-fade">
+          <div class="section-header">
+            <h2 class="section-title">My Tanks</h2>
+            <select id="tank-property-filter" onchange="renderTanks()" class="filter-select input-field">
+              <option value="all">All Properties</option>
+            </select>
+          </div>
+          <div id="tanks-list" class="tanks-grid"></div>
+        </section>
+
+        <!-- Tab: Weather -->
+        <section id="tab-weather-content" class="tab-content hidden transition-fade">
+          <div class="glass card glow-border">
+            <h2 class="section-title">7-Day Premium Atmosphere Cast</h2>
+            <div id="forecast-chart-container" class="glass-chart-container">
+              <!-- JS generates glass tubes here -->
+            </div>
+          </div>
+          <div class="glass card mt-xl">
+            <h2 class="section-title text-orange">Winter Service Advisories</h2>
+            <ul id="weather-alerts" class="alert-list custom-scroll">
+              <!-- Will be populated by JS -->
+            </ul>
+          </div>
+        </section>
+
+        <!-- Tab: Analytics & Settings -->
+        <section id="tab-analytics-content" class="tab-content hidden transition-fade">
+          <div class="k-factor-calc glass card glow-border">
+            <h2 class="section-title">K-Factor Calculator</h2>
+            <p class="text-muted mb-m">Calculate degree-day usage baselines for consumption forecasting.</p>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>Target Property</label>
+                <select id="kfactor-property" class="input-field"></select>
+              </div>
+              <div class="form-group">
+                <label>Avg Temperature (°F)</label>
+                <input type="number" id="kfactor-temp" value="-20" class="input-field">
+              </div>
+              <div class="form-group">
+                <label>Gallons Used (24h)</label>
+                <input type="number" id="kfactor-gallons" value="15" class="input-field">
+              </div>
+            </div>
+
+            <button onclick="calculateKFactor()" class="btn btn-primary w-full mt-m">Calculate K-Factor</button>
+
+            <div id="kfactor-result" class="result-box hidden">
+              <span class="result-label">Calculated K-Factor:</span>
+              <strong id="kfactor-value" class="result-value text-orange glow-text">0.000</strong>
+            </div>
+          </div>
+
+          <div class="glass card mt-xl">
+            <h2 class="section-title">Automated Alert thresholds</h2>
+            <div class="settings-list">
+              <div class="setting-item">
+                <div class="setting-info">
+                  <i data-lucide="droplet" class="text-orange"></i>
+                  <span>Low Tank Warning Threshold (%)</span>
+                </div>
+                <input type="number" id="setting-low-threshold" value="20" min="5" max="50"
+                  class="input-field short-input">
+              </div>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <i data-lucide="thermometer-snowflake" class="text-blue"></i>
+                  <span>Deep Freeze Alert Threshold (°F)</span>
+                </div>
+                <input type="number" id="setting-cold-temp" value="-20" max="32" class="input-field short-input">
+              </div>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <i data-lucide="waves" class="text-teal"></i>
+                  <span>Ice-Bridge Supply Alerts</span>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="setting-icebridge" checked>
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab: Settings -->
+        <section id="tab-settings-content" class="tab-content hidden transition-fade">
+          <div class="glass card flex-card">
+            <div class="account-details flex-1">
+              <h2 class="section-title">Account Information</h2>
+              <form class="account-form" onsubmit="event.preventDefault(); alert('Saved!');">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" class="input-field" value="Demo User">
+                </div>
+                <div class="form-group">
+                  <label>Email Address</label>
+                  <input type="email" class="input-field" value="demo@arcticflow.io">
+                </div>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </form>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Modals -->
+  <div id="property-modal" class="modal-overlay hidden">
+    <div class="modal-content glass pattern-overlay">
+      <div class="modal-header">
+        <h3>Add Target Property</h3>
+        <button onclick="closePropertyModal()" class="icon-btn close-btn">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body form-grid">
+        <div class="form-group">
+          <label>Property Name</label>
+          <input type="text" id="new-prop-name" class="input-field" placeholder="E.g. Denali Chalet">
+        </div>
+        <div class="form-group">
+          <label>Street Address</label>
+          <input type="text" id="new-prop-address" class="input-field">
+        </div>
+        <div class="form-group">
+          <label>Property Type</label>
+          <select id="new-prop-type" class="input-field">
+            <option value="cabin">Cabin</option>
+            <option value="home">Home</option>
+            <option value="duplex">Duplex</option>
+            <option value="tiny_home">Tiny Home</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="saveProperty()">Provision Property</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

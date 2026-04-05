@@ -1013,17 +1013,84 @@ input:checked+.slider:before {
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* =========================================================================
+   Landing Page Marketing Styles
+   ========================================================================= */
+
+.landing-page { overflow-x: hidden; }
+
+.hero-nav {
+  padding: 20px 48px; margin: 24px auto; max-width: 1200px;
+  border-radius: 24px; display: flex; justify-content: space-between;
+  align-items: center; position: relative; z-index: 100;
+}
+
+.nav-links { display: flex; align-items: center; gap: var(--space-l); }
+.nav-links a { color: var(--text-main); text-decoration: none; font-weight: 500; font-size: 0.95rem; transition: color 0.2s; }
+.nav-links a:hover { color: var(--accent-orange); }
+.ml-m { margin-left: var(--space-m); }
+
+.hero-section {
+  display: flex; flex-direction: column; justify-content: center;
+  align-items: center; text-align: center; padding: 100px 20px;
+  position: relative; z-index: 20;
+}
+
+.badge {
+  display: inline-block; padding: 8px 16px; background: rgba(74, 144, 226, 0.1);
+  border: 1px solid var(--accent-blue); color: var(--accent-blue);
+  border-radius: 100px; font-size: 0.8rem; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 1px; margin-bottom: var(--space-l);
+}
+
+.hero-headline { font-size: 4.5rem; line-height: 1.1; margin-bottom: var(--space-l); font-weight: 800; }
+.hero-subheadline { font-size: 1.25rem; color: var(--text-muted); max-width: 700px; margin: 0 auto var(--space-xl) auto; line-height: 1.6; }
+.hero-actions { display: flex; gap: var(--space-m); justify-content: center; margin-bottom: 80px; }
+.hero-secondary-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
+.hero-secondary-btn:hover { background: rgba(255,255,255,0.1); }
+
+.landing-pipeline { opacity: 0.5; top: 10%; }
+
+.preview-card {
+  width: 100%; max-width: 400px; text-align: left;
+  border-bottom: 4px solid var(--accent-orange); background: rgba(10, 10, 15, 0.8);
+  box-shadow: 0 20px 60px rgba(255, 107, 53, 0.15);
+  transform: rotateZ(2deg) translateY(0px); animation: float 6s ease-in-out infinite;
+}
+
+.floating-logo { width: 60px; height: 60px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 4px 15px rgba(255,107,53,0.4); }
+
+@keyframes float {
+  0% { transform: rotateZ(2deg) translateY(0px); }
+  50% { transform: rotateZ(3deg) translateY(-15px); }
+  100% { transform: rotateZ(2deg) translateY(0px); }
+}
+
+.features-section, .pricing-section { padding: 80px 20px; max-width: 1200px; margin: 0 auto; position: relative; z-index: 10; }
+.landing-grid, .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: var(--space-xl); }
+.feature-icon { width: 40px; height: 40px; margin-bottom: 20px; }
+.block-hover:hover { border-color: var(--accent-blue); box-shadow: 0 10px 40px rgba(74, 144, 226, 0.1); }
+
+.pricing-card { display: flex; flex-direction: column; padding: 40px; position: relative; }
+.price { font-size: 4rem; font-weight: 800; margin: var(--space-m) 0 var(--space-xl) 0; }
+.month { font-size: 1rem; color: var(--text-muted); }
+.pricing-features { list-style: none; flex-grow: 1; }
+.pricing-features li { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-size: 0.95rem; }
+
+.pro-tier { border-color: var(--accent-orange); background: linear-gradient(180deg, rgba(255, 107, 53, 0.05) 0%, rgba(10, 10, 15, 0.8) 100%); }
+.pro-badge { position: absolute; top: -12px; right: 20px; background: var(--accent-orange); color: white; padding: 4px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 800; box-shadow: 0 4px 15px var(--accent-orange-glow); }
+.justify-center { justify-content: center; }
+
+.landing-footer { text-align: center; padding: 40px 20px; border-top: 1px solid var(--border-glass); margin-top: 80px; }
+
 /* Media Queries */
 @media (max-width: 768px) {
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .hide-mobile {
-    display: none;
-  }
-
-  .nav-actions {
-    gap: var(--space-sm);
-  }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .hide-mobile { display: none; }
+  .nav-actions { gap: var(--space-sm); }
+  .hero-headline { font-size: 3rem; }
+  .hero-actions { flex-direction: column; }
+  .hero-nav { padding: 16px; border-radius: 0; margin: 0; }
+  .nav-links a { display: none; }
+  .nav-links .btn { display: inline-flex; }
 }

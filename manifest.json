@@ -1,0 +1,21 @@
+{
+  "name": "ArcticFlow Analytics",
+  "short_name": "ArcticFlow",
+  "description": "Intelligent IoT fuel management dashboard for Alaskan winters.",
+  "start_url": "/dashboard.html",
+  "display": "standalone",
+  "background_color": "#09090E",
+  "theme_color": "#FF6B35",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
