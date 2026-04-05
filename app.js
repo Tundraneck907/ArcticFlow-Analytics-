@@ -284,7 +284,7 @@ function populatePropertyDropdowns() {
     }
     
     store.properties.forEach(p => {
-      select.innerHTML += \`<option value="\${p.id}">\${p.name}</option>\`;
+      select.innerHTML += `<option value="${p.id}">${p.name}</option>`;
     });
   });
 }
@@ -314,7 +314,7 @@ function closePropertyModal() {
 function saveProperty() {
   const name = document.getElementById('new-prop-name').value;
   if(!name) return alert('Property name required');
-  alert(\`Provisioned Property: \${name}\`);
+  alert(`Provisioned Property: ${name}`);
   closePropertyModal();
 }
 
@@ -342,14 +342,14 @@ function createSnowflakes() {
   for (let i = 0; i < 30; i++) {
     const flake = document.createElement('div');
     flake.className = 'snowflake';
-    flake.style.fontSize = \`\${Math.random() * 8 + 4}px\`;
+    flake.style.fontSize = `${Math.random() * 8 + 4}px`;
     flake.innerHTML = '❄';
     flake.style.top = '-20px';
-    flake.style.left = \`\${Math.random() * 100}vw\`;
+    flake.style.left = `${Math.random() * 100}vw`;
     flake.style.opacity = Math.random() * 0.5 + 0.1;
 
-    flake.style.animation = \`fall \${Math.random() * 15 + 10}s linear infinite\`;
-    flake.style.animationDelay = \`\${Math.random() * 5}s\`;
+    flake.style.animation = `fall ${Math.random() * 15 + 10}s linear infinite`;
+    flake.style.animationDelay = `${Math.random() * 5}s`;
     
     container.appendChild(flake);
   }
