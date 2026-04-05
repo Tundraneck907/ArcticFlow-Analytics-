@@ -1,87 +1,49 @@
-/* =========================================================================
-   FIX: Robust Tab Toggling & Startup-Grade UI Logic
-   ========================================================================= */
+/* =============================================================
+   V6 MASTER: ASSET DIAGNOSTICS & 3D MAPPING
+   ============================================================= */
 
-function switchTab(tabId) {
-  // 1. Update Button States
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    const isActive = btn.id === `tab-${tabId}`;
-    btn.classList.toggle('active', isActive);
-    btn.setAttribute('aria-selected', isActive);
-  });
+function renderAssetDiagnostics() {
+    const container = document.getElementById('gauges-grid');
+    if(!container) return;
+    container.innerHTML = '';
 
-  // 2. THE FIX: Forcefully remove non-active tabs from the layout flow
-  document.querySelectorAll('.tab-content').forEach(content => {
-    content.style.display = 'none'; // Completely removes height from page
-    content.classList.remove('active', 'transition-fade');
-  });
-  
-  const activeContent = document.getElementById(`tab-${tabId}-content`);
-  if (!activeContent) return;
+    store.tanks.forEach(tank => {
+        const color = tank.level <= 20 ? 'var(--accent-danger)' : (tank.level <= 45 ? 'var(--accent-warning)' : 'var(--primary)');
+        
+        const div = document.createElement('div');
+        div.className = 'asset-card glass-panel';
+        div.innerHTML = `
+            <div class="asset-header">
+                <span class="asset-id">UNIT_${tank.id}</span>
+                <span class="asset-type">${tank.fuelType}</span>
+            </div>
+            
+            <div class="tank-wireframe">
+                <div class="wireframe-liquid" style="height:${tank.level}%; background:linear-gradient(to top, ${color}66, ${color}22);"></div>
+                <div class="wireframe-mesh"></div>
+                <div class="level-overlay">${tank.level}%</div>
+            </div>
 
-  // 3. Reveal and Animate
-  activeContent.style.display = 'block'; // Or 'grid' depending on your CSS
-  
-  // Trigger reflow for smooth CSS entry
-  void activeContent.offsetWidth;
-  activeContent.classList.add('transition-fade');
-
-  // 4. Specific Tab Initializations
-  if (tabId === 'performance') renderCharts(); 
-  if (tabId === 'weather') renderWeather();
-  
-  // Scroll to top of the new view
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+            <div class="telemetry-grid">
+                <div class="tel-item"><span>FLOW</span> <strong>1.4L/s</strong></div>
+                <div class="tel-item"><span>TEMP</span> <strong>-38°F</strong></div>
+                <div class="tel-item"><span>VIBE</span> <strong>NOMINAL</strong></div>
+                <div class="tel-item"><span>HLTH</span> <strong>98%</strong></div>
+            </div>
+        `;
+        container.appendChild(div);
+    });
 }
 
-/* =========================================================================
-   UPGRADE 1: Professional "Bento" Progress Rings 
-   (Replaces the bulky cylinders for a cleaner look)
-   ========================================================================= */
-function renderCylinders() {
-  const container = document.getElementById('gauges-grid');
-  if(!container) return;
-  container.innerHTML = '';
-
-  store.tanks.forEach(tank => {
-    const color = tank.level <= 20 ? '#FF4C4C' : (tank.level <= 45 ? '#F59E0B' : '#4DEEE1');
-    const ringSize = 120;
-    const stroke = 8;
-    const radius = (ringSize / 2) - stroke;
-    const circumference = 2 * Math.PI * radius;
-    const offset = circumference - (tank.level / 100) * circumference;
-
-    const div = document.createElement('div');
-    div.className = 'bento-stat-card'; // Use this class for "Funded Startup" look
-    div.innerHTML = `
-      <div class="ring-container">
-        <svg width="${ringSize}" height="${ringSize}">
-          <circle class="ring-track" cx="${ringSize/2}" cy="${ringSize/2}" r="${radius}" stroke-width="${stroke}" />
-          <circle class="ring-fill" cx="${ringSize/2}" cy="${ringSize/2}" r="${radius}" 
-                  stroke-width="${stroke}" 
-                  stroke-dasharray="${circumference}" 
-                  stroke-dashoffset="${offset}"
-                  stroke="${color}"
-                  style="filter: drop-shadow(0 0 8px ${color}66)" />
-        </svg>
-        <div class="ring-label">
-          <span class="percent">${tank.level}%</span>
-          <span class="label">Tank #${tank.number}</span>
+// 3D Map Initialization (Placeholder for Mapbox/Three.js)
+function initArcticMap() {
+    const mapEl = document.getElementById('arctic-map-3d');
+    if(!mapEl) return;
+    mapEl.innerHTML = `
+        <div class="map-mesh-bg"></div>
+        <div class="map-ui-overlay">
+            <div class="pulsing-node" style="top:40%; left:50%;"></div>
+            <div class="node-label" style="top:42%; left:52%;">North Pole HQ</div>
         </div>
-      </div>
     `;
-    container.appendChild(div);
-  });
-}
-
-/* =========================================================================
-   UPGRADE 2: Autonomous Background Monitoring (Service Worker)
-   ========================================================================= */
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    // This script would check tank levels even when the app is "closed"
-    navigator.serviceWorker.register('/sw.js').then(reg => {
-      console.log('ArcticFlow Background Monitor Active');
-    }).catch(err => console.log('SW registration failed', err));
-  });
 }
