@@ -31,7 +31,10 @@ const store = {
     { title: "Critical Fuel Level", desc: "Salcha Trailer (Tank #1) is at 16%. Refill required immediately.", type: "danger" },
     { title: "Freeze Warning", desc: "Temperatures dropping to -38°F tonight. Monitor exterior lines.", type: "warning" },
     { title: "Thawing Danger", desc: "Humidity at 65%. Risk of thawing cycle at North Pole Duplex.", type: "info" }
-  ]
+  ],
+  settings: {
+    fuelPricePerGallon: 7.85  // Alaska average — editable in Settings
+  }
 };
 
 // --- Initialization ---
@@ -161,31 +164,62 @@ function renderProperties() {
   lucide.createIcons();
 }
 
-// --- Tanks Tab ---
+// --- Tanks Tab: Fuel Cost & Days-Until-Empty Calculator ---
+function calcTankEstimates(tank) {
+  const gallonsRemaining = (tank.level / 100) * tank.capacity;
+  const price = store.settings.fuelPricePerGallon;
+  const refillCost = ((100 - tank.level) / 100) * tank.capacity * price;
+
+  // K-Factor based consumption: gallons per Heating Degree Day (HDD = 65 - currentTemp)
+  const temp = store.weather.current.temp;
+  const hdd = Math.max(65 - temp, 1);
+  const kFactor = 0.012; // typical Alaskan residential baseline
+  const gallonsPerDay = kFactor * hdd;
+  const daysLeft = gallonsPerDay > 0 ? Math.floor(gallonsRemaining / gallonsPerDay) : 99;
+
+  return { refillCost: refillCost.toFixed(0), daysLeft, gallonsRemaining: gallonsRemaining.toFixed(0) };
+}
+
 function renderTanks() {
-  // Can be filtered by dropdown
   const filterId = document.getElementById('tank-property-filter').value;
   const container = document.getElementById('tanks-list');
   container.innerHTML = '';
 
-  const tanksToShow = filterId === 'all' 
-    ? store.tanks 
+  const tanksToShow = filterId === 'all'
+    ? store.tanks
     : store.tanks.filter(t => t.propertyId == filterId);
 
   tanksToShow.forEach(tank => {
     const prop = store.properties.find(p => p.id === tank.propertyId);
+    const est = calcTankEstimates(tank);
+    const urgencyColor = tank.level <= 20 ? 'var(--accent-orange)' : 'var(--accent-teal)';
+    const daysColor = est.daysLeft <= 3 ? 'var(--accent-orange)' : est.daysLeft <= 7 ? '#F59E0B' : 'var(--accent-teal)';
+
     container.innerHTML += `
-      <div class="glass card prop-card">
+      <div class="glass card prop-card premium-bevel">
         <div class="prop-header">
           <span class="prop-type" style="background: rgba(255,107,53,0.1); color: var(--accent-orange)">${tank.fuelType}</span>
           <span class="stat-val" style="font-size: 1.5rem; color: ${tank.level <= 20 ? 'var(--accent-orange)' : 'var(--text-main)'}">${tank.level}%</span>
         </div>
         <div class="prop-name">Tank #${tank.number} &mdash; ${tank.capacity} Gal</div>
         <div class="prop-address">${prop.name}</div>
-        
-        <div class="w-full bg-gray-900 rounded-full h-2 mb-4" style="background: rgba(255,255,255,0.1); border-radius: 4px; overflow:hidden;">
-          <div class="h-2 rounded-full" style="width: ${tank.level}%; background: ${tank.level <= 20 ? 'var(--accent-orange)' : 'var(--accent-teal)'}; transition: width 1s;"></div>
+
+        <div style="background: rgba(255,255,255,0.1); border-radius: 4px; overflow:hidden; margin: 12px 0;">
+          <div style="height: 6px; width: ${tank.level}%; background: ${urgencyColor}; transition: width 1s; border-radius: 4px;"></div>
         </div>
+
+        <!-- Cost & Days Until Empty Estimator -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;">
+          <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px; text-align: center;">
+            <div style="font-size: 1.2rem; font-weight: 800; color: ${daysColor};">${est.daysLeft}d</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Days Until Empty</div>
+          </div>
+          <div style="background: rgba(0,0,0,0.3); border-radius: 10px; padding: 12px; text-align: center;">
+            <div style="font-size: 1.2rem; font-weight: 800; color: var(--accent-blue);">$${est.refillCost}</div>
+            <div style="font-size: 0.7rem; color: var(--text-muted); margin-top: 2px;">Est. Refill Cost</div>
+          </div>
+        </div>
+
         <button class="btn btn-primary w-full" style="padding: 8px"><i data-lucide="truck"></i> Request Delivery</button>
       </div>
     `;
@@ -193,10 +227,59 @@ function renderTanks() {
   lucide.createIcons();
 }
 
+// --- Alaskan Daylight Clock (pure math, no API) ---
+function calcSunTimes(lat, lon) {
+  const now = new Date();
+  const dayOfYear = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
+
+  // Solar declination
+  const decl = 23.45 * Math.sin((Math.PI / 180) * (360 / 365) * (dayOfYear - 81));
+  const declRad = decl * (Math.PI / 180);
+  const latRad = lat * (Math.PI / 180);
+
+  // Hour angle at sunrise
+  const cosHA = -Math.tan(latRad) * Math.tan(declRad);
+  if (cosHA < -1) return { sunrise: '--', sunset: '--', hours: 24, polar: 'Polar Day' };
+  if (cosHA > 1) return { sunrise: '--', sunset: '--', hours: 0, polar: 'Polar Night' };
+
+  const haRad = Math.acos(cosHA);
+  const haDeg = haRad * (180 / Math.PI);
+
+  // Equation of time correction (approx)
+  const B = (360 / 365) * (dayOfYear - 81) * (Math.PI / 180);
+  const eot = 9.87 * Math.sin(2 * B) - 7.53 * Math.cos(B) - 1.5 * Math.sin(B);
+  const lonCorr = 4 * (lon % 15);
+  const noon = 720 - lonCorr - eot; // solar noon in minutes from midnight
+
+  const sunriseMin = noon - haDeg * 4;
+  const sunsetMin  = noon + haDeg * 4;
+  const totalMins  = sunsetMin - sunriseMin;
+
+  const fmt = m => {
+    const h = Math.floor(((m % 1440) + 1440) % 1440 / 60);
+    const min = Math.floor(m % 60);
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    return `${((h + 11) % 12 + 1)}:${String(min).padStart(2,'0')} ${ampm}`;
+  };
+
+  return {
+    sunrise: fmt(sunriseMin),
+    sunset: fmt(sunsetMin),
+    hours: (totalMins / 60).toFixed(1),
+    polar: null
+  };
+}
+
 // --- Weather Tab ---
 function renderWeather() {
   const current = store.weather.current;
   const weatherContent = document.getElementById('weather-content');
+
+  // Compute daylight for first property's lat/lon
+  const prop = store.properties[0];
+  const sun = calcSunTimes(prop.lat, prop.lon);
+  const daylightWarning = parseFloat(sun.hours) < 5 ? 'var(--accent-orange)' : 'var(--accent-teal)';
+
   weatherContent.innerHTML = `
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 1rem;">
       <div>
@@ -211,6 +294,25 @@ function renderWeather() {
       </div>
       <div style="display:flex; justify-content:space-between;">
         <span style="color:var(--text-muted)">Humidity</span> <strong>${current.humidity}%</strong>
+      </div>
+    </div>
+
+    <!-- Alaska Daylight Clock Widget -->
+    <div style="margin-top: 16px; padding: 14px; background: rgba(0,0,0,0.3); border-radius: 12px; border: 1px solid rgba(255,255,255,0.06);">
+      <div style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 10px;">Alaska Daylight Clock</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center;">
+        <div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: #F59E0B;">☀ ${sun.sunrise}</div>
+          <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 2px;">Sunrise</div>
+        </div>
+        <div>
+          <div style="font-size: 1.1rem; font-weight: 800; color: ${daylightWarning};">${sun.polar || sun.hours + 'h'}</div>
+          <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 2px;">Daylight</div>
+        </div>
+        <div>
+          <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent-blue);">🌙 ${sun.sunset}</div>
+          <div style="font-size: 0.65rem; color: var(--text-muted); margin-top: 2px;">Sunset</div>
+        </div>
       </div>
     </div>
   `;
