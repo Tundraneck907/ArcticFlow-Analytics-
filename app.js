@@ -220,101 +220,35 @@ function renderWeather() {
   lucide.createIcons();
 }
 
-let forecastChart = null;
 function initForecastChart() {
-  const ctx = document.getElementById('forecast-chart').getContext('2d');
+  const container = document.getElementById('forecast-chart-container');
+  if(!container) return;
+  container.innerHTML = '';
   
-  if(forecastChart) forecastChart.destroy();
-  
-  const labels = store.weather.forecast.map(f => f.day);
-  const highs = store.weather.forecast.map(f => f.high);
-  const lows = store.weather.forecast.map(f => f.low);
+  // Custom Glass Tube Chart
+  const forecast = store.weather.forecast;
+  let maxHigh = Math.max(...forecast.map(f => f.high));
+  let minLow = Math.min(...forecast.map(f => f.low));
+  let range = maxHigh - minLow || 1;
 
-  // Generate Premium SaaS Gradients
-  const gradHigh = ctx.createLinearGradient(0, 0, 0, 300);
-  gradHigh.addColorStop(0, 'rgba(255, 107, 53, 0.6)');
-  gradHigh.addColorStop(1, 'rgba(255, 107, 53, 0.0)');
-
-  const gradLow = ctx.createLinearGradient(0, 0, 0, 300);
-  gradLow.addColorStop(0, 'rgba(74, 144, 226, 0.5)');
-  gradLow.addColorStop(1, 'rgba(74, 144, 226, 0.0)');
-
-  forecastChart = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: labels,
-      datasets: [
-        {
-          label: 'High Temp (°F)',
-          data: highs,
-          borderColor: '#FF6B35',
-          backgroundColor: gradHigh,
-          fill: true,
-          tension: 0.5,
-          borderWidth: 4,
-          pointBackgroundColor: '#16161A',
-          pointBorderColor: '#FF6B35',
-          pointBorderWidth: 3,
-          pointRadius: 6,
-          pointHoverRadius: 9,
-          pointHoverBackgroundColor: '#FF6B35',
-          pointHoverBorderColor: '#FFF'
-        },
-        {
-          label: 'Low Temp (°F)',
-          data: lows,
-          borderColor: '#4A90E2',
-          backgroundColor: gradLow,
-          fill: true,
-          tension: 0.5,
-          borderWidth: 4,
-          pointBackgroundColor: '#16161A',
-          pointBorderColor: '#4A90E2',
-          pointBorderWidth: 3,
-          pointRadius: 6,
-          pointHoverRadius: 9,
-          pointHoverBackgroundColor: '#4A90E2',
-          pointHoverBorderColor: '#FFF'
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: {
-        mode: 'index',
-        intersect: false,
-      },
-      plugins: {
-        legend: { 
-          labels: { color: '#F3F4F6', font: { family: 'Inter', size: 13, weight: 'bold' }, padding: 20 },
-          position: 'top'
-        },
-        tooltip: {
-          backgroundColor: 'rgba(22, 22, 26, 0.9)',
-          titleFont: { size: 14, family: 'Inter' },
-          bodyFont: { size: 14, family: 'Inter', weight: 'bold' },
-          padding: 12,
-          cornerRadius: 8,
-          borderColor: 'rgba(255,255,255,0.1)',
-          borderWidth: 1
-        }
-      },
-      scales: {
-        x: { 
-          grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, 
-          ticks: { color: '#9CA3AF', font: { size: 12, weight: 'bold' }, padding: 10 } 
-        },
-        y: { 
-          grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, 
-          ticks: { color: '#9CA3AF', font: { size: 12, weight: 'bold' }, padding: 10 } 
-        }
-      },
-      animation: {
-        duration: 2000,
-        easing: 'easeOutQuart'
-      }
-    }
+  forecast.forEach((f, i) => {
+    // Normalizing values (0 to 1)
+    let fillPercentHigh = ((f.high - minLow) / range) * 100;
+    let fillPercentLow = ((f.low - minLow) / range) * 100;
+    
+    // We make a glowing vertical capsule
+    let barHtml = `
+      <div class="glass-bar-wrapper" style="animation-delay: ${i * 0.1}s">
+        <div class="bar-label top-label">${f.high}°</div>
+        <div class="glass-tube">
+          <div class="glow-fill high-fill" style="height: ${fillPercentHigh}%"></div>
+          <div class="glow-fill low-fill" style="height: ${fillPercentLow}%"></div>
+        </div>
+        <div class="bar-label bottom-label">${f.low}°</div>
+        <div class="bar-day">${f.day}</div>
+      </div>
+    `;
+    container.innerHTML += barHtml;
   });
 }
 

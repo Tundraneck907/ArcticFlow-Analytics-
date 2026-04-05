@@ -1,49 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="ArcticFlow Analytics - Smart Fuel Management for Alaska's Harsh Winter">
-  <meta name="keywords" content="arctic, fuel, management, dashboard, property management, winter, cloud, snow, pipeline, dashboard">
+  <meta name="keywords"
+    content="arctic, fuel, management, dashboard, property management, winter, cloud, snow, pipeline, dashboard">
 
   <title>ArcticFlow Analytics - Intelligent Fuel Management</title>
 
   <!-- External Resources -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  
+
   <link rel="stylesheet" href="styles.css">
 </head>
+
 <body>
   <!-- Snow Effect Background -->
   <div id="snowflakes"></div>
 
   <!-- Login Screen -->
   <div id="login-screen" class="screen-container">
-    <!-- Stylized Alaska Pipeline Graphic -->
-    <svg class="alaska-pipeline-bg" viewBox="0 0 1200 800" preserveAspectRatio="xMinYMax slice">
-      <!-- Supports (H-frames) -->
-      <g class="pipeline-supports" stroke="#4A90E2" stroke-width="4" opacity="0.6">
-        <path d="M 100,800 L 100,550 M 80,560 L 120,560" />
-        <path d="M 250,750 L 250,420 M 230,430 L 270,430" />
-        <path d="M 400,600 L 400,280 M 380,290 L 420,290" />
-        <path d="M 600,450 L 600,180 M 580,190 L 620,190" />
-        <path d="M 850,300 L 850,220 M 830,230 L 870,230" />
-        <path d="M 1100,350 L 1100,290 M 1080,300 L 1120,300" />
-      </g>
-      <!-- The Pipe (Zig Zag Trans-Alaska style) -->
-      <path class="pipeline-main-pipe" d="M -50,650 L 100,550 L 250,420 L 400,280 Q 500,160 600,180 T 850,220 T 1300,320" 
-            fill="none" stroke="#687381" stroke-width="24" stroke-linejoin="round" stroke-linecap="round" />
-      
-      <!-- Flow animation inside pipe -->
-      <path class="pipeline-flow-anim" d="M -50,650 L 100,550 L 250,420 L 400,280 Q 500,160 600,180 T 850,220 T 1300,320" 
-            fill="none" stroke="#FF6B35" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="20 40"/>
-    </svg>
-
-    <div class="login-box glass card" style="position: relative; z-index: 20;">
+    <div class="login-box glass card">
       <div class="logo-container">
-        <img src="assets/logo.png" alt="ArcticFlow Analytics Logo" class="brand-logo" style="width: 120px; height: 120px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(255,107,53,0.3);">
+        <img src="assets/logo.png" alt="ArcticFlow Analytics Logo" class="brand-logo"
+          style="width: 120px; height: 120px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 8px 32px rgba(255,107,53,0.3);">
         <h1 class="brand-title">ArcticFlow Analytics</h1>
         <p class="brand-subtitle">Intelligent Fuel Management for Alaska</p>
       </div>
@@ -56,7 +41,7 @@
         <label for="login-password">Password</label>
         <input type="password" id="login-password" value="demo123" class="input-field">
       </div>
-      
+
       <button onclick="handleLogin()" class="btn btn-primary w-full pulse-btn">
         Sign In
       </button>
@@ -86,7 +71,7 @@
             <i data-lucide="bell"></i>
             <span id="alert-count" class="alert-badge hidden">3</span>
           </button>
-          
+
           <div class="user-profile">
             <div class="avatar">DM</div>
             <span class="username hide-mobile">Demo User</span>
@@ -118,19 +103,19 @@
               <div id="stat-properties" class="kpi-value">0</div>
               <p class="kpi-label">Active Monitored Sites</p>
             </div>
-            
+
             <div class="glass card kpi-card pattern-overlay">
               <h3>Fuel Tanks</h3>
               <div id="stat-tanks" class="kpi-value">0</div>
               <p class="kpi-label">Sensors Online</p>
             </div>
-            
+
             <div class="glass card kpi-card pattern-overlay">
               <h3>Avg Tank Level</h3>
               <div id="stat-avg" class="kpi-value">0%</div>
               <p class="kpi-label">System-Wide Health</p>
             </div>
-            
+
             <div class="glass card kpi-card pattern-overlay alert-bg">
               <h3>Critical Alerts</h3>
               <div id="stat-alerts" class="kpi-value alert-text">0</div>
@@ -149,7 +134,7 @@
             <div class="side-panels">
               <div class="glass card">
                 <h2 class="section-title">
-                  <i data-lucide="cloud-snow" class="text-blue"></i> 
+                  <i data-lucide="cloud-snow" class="text-blue"></i>
                   Weather Impact
                 </h2>
                 <div id="weather-content" class="weather-summary">
@@ -201,17 +186,17 @@
 
         <!-- Tab: Weather -->
         <section id="tab-weather-content" class="tab-content hidden transition-fade">
-          <div class="glass card">
-            <h2 class="section-title">7-Day Forecast & Impact</h2>
-            <div class="chart-container">
-              <canvas id="forecast-chart"></canvas>
+          <div class="glass card glow-border">
+            <h2 class="section-title">7-Day Premium Atmosphere Cast</h2>
+            <div id="forecast-chart-container" class="glass-chart-container">
+              <!-- JS generates glass tubes here -->
             </div>
           </div>
           <div class="glass card mt-xl">
-             <h2 class="section-title text-orange">Winter Service Advisories</h2>
-             <ul id="weather-alerts" class="alert-list custom-scroll">
-               <!-- Will be populated by JS -->
-             </ul>
+            <h2 class="section-title text-orange">Winter Service Advisories</h2>
+            <ul id="weather-alerts" class="alert-list custom-scroll">
+              <!-- Will be populated by JS -->
+            </ul>
           </div>
         </section>
 
@@ -220,7 +205,7 @@
           <div class="k-factor-calc glass card glow-border">
             <h2 class="section-title">K-Factor Calculator</h2>
             <p class="text-muted mb-m">Calculate degree-day usage baselines for consumption forecasting.</p>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>Target Property</label>
@@ -235,12 +220,12 @@
                 <input type="number" id="kfactor-gallons" value="15" class="input-field">
               </div>
             </div>
-            
+
             <button onclick="calculateKFactor()" class="btn btn-primary w-full mt-m">Calculate K-Factor</button>
-            
+
             <div id="kfactor-result" class="result-box hidden">
-               <span class="result-label">Calculated K-Factor:</span>
-               <strong id="kfactor-value" class="result-value text-orange glow-text">0.000</strong>
+              <span class="result-label">Calculated K-Factor:</span>
+              <strong id="kfactor-value" class="result-value text-orange glow-text">0.000</strong>
             </div>
           </div>
 
@@ -252,7 +237,8 @@
                   <i data-lucide="droplet" class="text-orange"></i>
                   <span>Low Tank Warning Threshold (%)</span>
                 </div>
-                <input type="number" id="setting-low-threshold" value="20" min="5" max="50" class="input-field short-input">
+                <input type="number" id="setting-low-threshold" value="20" min="5" max="50"
+                  class="input-field short-input">
               </div>
               <div class="setting-item">
                 <div class="setting-info">
@@ -335,4 +321,5 @@
 
   <script src="app.js"></script>
 </body>
+
 </html>
