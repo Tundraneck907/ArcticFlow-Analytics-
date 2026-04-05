@@ -327,7 +327,6 @@ function handleLogin() {
   document.getElementById('app').classList.remove('hidden');
   // Re-run animation logic when shown
   setTimeout(renderGauges, 100); 
-  if(forecastChart) forecastChart.resize();
 }
 
 function handleLogout() {
