@@ -69,6 +69,14 @@
         </div>
 
         <div class="nav-actions">
+          <!-- AI Status Badge -->
+          <div id="ai-status-badge" class="ai-status-badge">
+            <i data-lucide="brain-circuit" style="width:14px;"></i> AI Loading...
+          </div>
+
+          <!-- Offline Indicator -->
+          <div id="offline-indicator" class="offline-indicator hidden"></div>
+
           <button onclick="showAlerts()" class="notification-btn relative-box">
             <i data-lucide="bell"></i>
             <span id="alert-count" class="alert-badge hidden">3</span>
@@ -94,6 +102,9 @@
         <button onclick="switchTab('weather')" id="tab-weather" class="tab-btn">Weather</button>
         <button onclick="switchTab('winterize')" id="tab-winterize" class="tab-btn">Winterize</button>
         <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn">Analytics</button>
+        <button onclick="switchTab('ai')" id="tab-ai" class="tab-btn">🧠 AI Hub</button>
+        <button onclick="switchTab('roi')" id="tab-roi" class="tab-btn">💰 Savings & ROI</button>
+        <button onclick="switchTab('community')" id="tab-community" class="tab-btn">🤝 Community</button>
         <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn">Settings</button>
       </nav>
 
@@ -101,28 +112,38 @@
         <!-- Tab: Overview -->
         <section id="tab-overview-content" class="tab-content active transition-fade">
           <div class="kpi-grid">
-            <div class="glass card kpi-card pattern-overlay">
+            <div class="glass card kpi-card pattern-overlay" onclick="openKpiDrilldown('properties')" style="cursor:pointer;" role="button" aria-label="Drill into properties" tabindex="0">
               <h3>Total Properties</h3>
               <div id="stat-properties" class="kpi-value">0</div>
               <p class="kpi-label">Active Monitored Sites</p>
             </div>
 
-            <div class="glass card kpi-card pattern-overlay">
+            <div class="glass card kpi-card pattern-overlay" onclick="openKpiDrilldown('tanks')" style="cursor:pointer;" role="button" aria-label="Drill into tanks" tabindex="0">
               <h3>Fuel Tanks</h3>
               <div id="stat-tanks" class="kpi-value">0</div>
               <p class="kpi-label">Sensors Online</p>
             </div>
 
-            <div class="glass card kpi-card pattern-overlay">
+            <div class="glass card kpi-card pattern-overlay" onclick="openKpiDrilldown('avg')" style="cursor:pointer;" role="button" aria-label="Drill into averages" tabindex="0">
               <h3>Avg Tank Level</h3>
               <div id="stat-avg" class="kpi-value">0%</div>
               <p class="kpi-label">System-Wide Health</p>
             </div>
 
-            <div class="glass card kpi-card pattern-overlay alert-bg">
+            <div class="glass card kpi-card pattern-overlay alert-bg" onclick="openKpiDrilldown('alerts')" style="cursor:pointer;" role="button" aria-label="Drill into alerts" tabindex="0">
               <h3>Critical Alerts</h3>
               <div id="stat-alerts" class="kpi-value alert-text">0</div>
               <p class="kpi-label">Action Required</p>
+            </div>
+
+            <!-- Preparedness Score Ring -->
+            <div id="survival-score-container" class="pattern-overlay" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+              <!-- Handled by GamificationEngine.renderSurvivalScore() -->
+               <div class="glass card kpi-card" style="text-align:center;">
+                 <h3>Survival Score</h3>
+                 <div class="kpi-value">--</div>
+                 <p class="kpi-label">Calculating...</p>
+               </div>
             </div>
           </div>
 
@@ -185,6 +206,15 @@
             </select>
           </div>
           <div id="tanks-list" class="tanks-grid"></div>
+
+          <!-- Fuel Quality Monitor -->
+          <div style="margin-top: 24px;">
+            <h2 class="section-title" style="margin-bottom:16px;">
+              <i data-lucide="flask-conical" class="text-orange"></i>
+              Fuel Quality Monitor
+            </h2>
+            <div id="fuel-quality-panel"></div>
+          </div>
         </section>
 
         <!-- Tab: Weather -->
@@ -222,58 +252,203 @@
               <div class="glass card premium-bevel border-blue">
                 <h2 class="section-title"><i data-lucide="battery-charging" class="text-blue"></i> Off-Grid Power</h2>
                 <div id="battery-tracker" class="mt-m">
-                  <div class="flex-between mb-sm"><span class="text-muted">Main Solar Bank</span><span class="text-orange" style="font-weight: 700;">11.8V</span></div>
+                  <div class="flex-between mb-sm"><span class="text-muted">Main Solar Bank</span><span id="solar-voltage" class="text-orange" style="font-weight: 700;">12.6V</span></div>
                   <div class="w-full bg-gray-900 rounded-full h-2 mb-m" style="background: rgba(255,255,255,0.1); border-radius: 4px;">
-                    <div class="h-2 rounded-full" style="width: 25%; background: var(--accent-orange);"></div>
+                    <div id="solar-level-bar" class="h-2 rounded-full" style="width: 98%; background: var(--accent-teal);"></div>
                   </div>
-                  <p class="text-muted" style="font-size: 0.8rem;">Voltage critical. Inverter shutdown imminent if engine block is not started.</p>
+                  <div class="flex-between" style="font-size:0.7rem; color:var(--text-muted); margin-top:8px;">
+                     <span>Health Check</span>
+                     <span id="solar-health">98% Perfect</span>
+                  </div>
                 </div>
+              </div>
+            </div>
+
+              <!-- Cord-Burn Rate Optimizer -->
+              <div class="glass card premium-bevel">
+                <h2 class="section-title"><i data-lucide="tree-pine" class="text-orange"></i> Firewood Burn-Rate Optimizer</h2>
+                <p class="text-muted" style="font-size:0.8rem; margin-bottom:12px;">AI auto-adjusts cord consumption based on temperature and humidity data.</p>
+                <div id="cord-burn-tracker"></div>
               </div>
             </div>
           </div>
         </section>
 
         <!-- Tab: Analytics & Settings -->
+        <!-- Tab: Analytics -->
         <section id="tab-analytics-content" class="tab-content hidden transition-fade">
-          <div class="k-factor-calc glass card glow-border">
-            <h2 class="section-title">K-Factor Calculator</h2>
-            <p class="text-muted mb-m">Calculate degree-day usage baselines for consumption forecasting.</p>
-
-            <div class="form-grid">
-              <div class="form-group">
-                <label>Target Property</label>
-                <select id="kfactor-property" class="input-field"></select>
-              </div>
-              <div class="form-group">
-                <label>Avg Temperature (°F)</label>
-                <input type="number" id="kfactor-temp" value="-20" class="input-field">
-              </div>
-              <div class="form-group">
-                <label>Gallons Used (24h)</label>
-                <input type="number" id="kfactor-gallons" value="15" class="input-field">
-              </div>
+          <div class="section-header">
+            <h2 class="section-title"><i data-lucide="bar-chart-3" class="text-teal"></i> Fuel Intelligence Analytics</h2>
+            <div class="nav-badge">V1.4 Start-up Grade</div>
+          </div>
+          
+          <div class="dashboard-grid">
+            <!-- Pareto Chart: Consumption by Property -->
+            <div class="glass card premium-bevel">
+              <h3 class="section-title" style="font-size:0.9rem;">Consumption Pareto Analysis</h3>
+              <p class="text-muted" style="font-size:0.75rem; margin-bottom:12px;">Top properties driving 80% of fuel drain.</p>
+              <canvas id="pareto-chart" height="250"></canvas>
             </div>
 
-            <button onclick="calculateKFactor()" class="btn btn-primary w-full mt-m">Calculate K-Factor</button>
-
-            <div id="kfactor-result" class="result-box hidden">
-              <span class="result-label">Calculated K-Factor:</span>
-              <strong id="kfactor-value" class="result-value text-orange glow-text">0.000</strong>
+            <!-- Waterfall Chart: Inventory Reconciliation -->
+            <div class="glass card premium-bevel">
+              <h3 class="section-title" style="font-size:0.9rem;">Fuel Inventory Waterfall</h3>
+              <p class="text-muted" style="font-size:0.75rem; margin-bottom:12px;">Monthly reconciliation: Starting -> Refills -> Usage.</p>
+              <canvas id="waterfall-chart" height="250"></canvas>
             </div>
           </div>
 
-          <div class="glass card mt-xl">
-            <h2 class="section-title">Automated Task Reminders</h2>
-            <div class="settings-list">
-              <div class="setting-item"><div class="setting-info"><i data-lucide="plug" class="text-orange"></i><span>Plug in Engine Block Heater (Nightly)</span></div><label class="toggle-switch"><input type="checkbox" id="set-blockheater"><span class="slider"></span></label></div>
-              <div class="setting-item"><div class="setting-info"><i data-lucide="flame" class="text-orange"></i><span>Activate Heat Tape on Water Lines</span></div><label class="toggle-switch"><input type="checkbox" id="set-heattape" checked><span class="slider"></span></label></div>
-              <div class="setting-item"><div class="setting-info"><i data-lucide="zap" class="text-teal"></i><span>Test Backup Generator (Monthly)</span></div><label class="toggle-switch"><input type="checkbox" id="set-generator"><span class="slider"></span></label></div>
-              <div class="setting-item"><div class="setting-info"><i data-lucide="wind" class="text-blue"></i><span>Shovel Roof / Rake Vents (Post-Snow)</span></div><label class="toggle-switch"><input type="checkbox" id="set-roof"><span class="slider"></span></label></div>
-              <div class="setting-item"><div class="setting-info"><i data-lucide="tree-pine" class="text-orange"></i><span>Restock Indoor Firewood Cache</span></div><label class="toggle-switch"><input type="checkbox" id="set-wood"><span class="slider"></span></label></div>
-              
-              <div class="setting-item mt-l" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: var(--space-m)">
-                <div class="setting-info"><i data-lucide="droplet" class="text-orange"></i><span>Low Fuel Threshold (%)</span></div>
-                <input type="number" id="setting-low-threshold" value="20" min="5" max="50" class="input-field short-input">
+          <div class="dashboard-grid mt-m">
+            <!-- Dot Plot: Comparative Tank Health -->
+            <div class="glass card premium-bevel">
+              <h3 class="section-title" style="font-size:0.9rem;">Comparative Level Dot Plot</h3>
+              <p class="text-muted" style="font-size:0.75rem; margin-bottom:12px;">System-wide tank level distribution.</p>
+              <canvas id="dotplot-chart" height="300"></canvas>
+            </div>
+
+            <!-- K-Factor Calculator (Moved here) -->
+            <div class="glass card premium-bevel">
+              <h3 class="section-title" style="font-size:0.9rem;">K-Factor Calculator</h3>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label style="font-size:0.7rem;">Property</label>
+                  <select id="kfactor-property" class="input-field" style="font-size:0.8rem; height:32px;"></select>
+                </div>
+                <div class="form-group">
+                  <label style="font-size:0.7rem;">Temp / Gallons</label>
+                  <div style="display:flex; gap:4px;">
+                    <input type="number" id="kfactor-temp" value="-20" class="input-field" style="font-size:0.8rem; height:32px;">
+                    <input type="number" id="kfactor-gallons" value="15" class="input-field" style="font-size:0.8rem; height:32px;">
+                  </div>
+                </div>
+              </div>
+              <button onclick="calculateKFactor()" class="btn btn-primary w-full mt-m" style="padding:8px; font-size:0.8rem;">Calculate</button>
+              <div id="kfactor-result" class="result-box hidden" style="margin-top:12px; padding:8px; background:rgba(0,0,0,0.2);">
+                <span class="result-label" style="font-size:0.7rem;">Value:</span>
+                <strong id="kfactor-value" class="text-orange" style="font-size:1rem;">0.000</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Automated Task Reminders (Kept for completeness) -->
+          <div class="glass card mt-m">
+            <h3 class="section-title" style="font-size:0.9rem;">Automated System Tasks</h3>
+            <div class="settings-list" style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+              <div class="setting-item"><div class="setting-info"><i data-lucide="plug" class="text-orange" style="width:14px;"></i><span style="font-size:0.75rem;">Engine Block Heater</span></div><label class="toggle-switch"><input type="checkbox" id="set-blockheater"><span class="slider"></span></label></div>
+              <div class="setting-item"><div class="setting-info"><i data-lucide="flame" class="text-orange" style="width:14px;"></i><span style="font-size:0.75rem;">Heat Tape</span></div><label class="toggle-switch"><input type="checkbox" id="set-heattape" checked><span class="slider"></span></label></div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Tab: AI Hub -->
+        <section id="tab-ai-content" class="tab-content hidden transition-fade">
+          <!-- AI Monitor Status Row -->
+          <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom:20px;">
+            <div class="glass card" style="padding:16px; text-align:center;">
+              <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Scans Completed</div>
+              <div id="ai-scan-count" style="font-size:2rem; font-weight:800; color:var(--accent-blue);">0</div>
+            </div>
+            <div class="glass card" style="padding:16px; text-align:center;">
+              <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Anomalies Detected</div>
+              <div id="ai-anomaly-count" style="font-size:2rem; font-weight:800; color:var(--accent-orange);">0</div>
+            </div>
+            <div class="glass card" style="padding:16px; text-align:center;">
+              <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:6px;">Engine Status</div>
+              <div style="font-size:1rem; font-weight:700; color:var(--accent-teal);">🟢 Active</div>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <!-- Anomaly Detection Log -->
+            <div class="glass card premium-bevel" style="padding:16px;">
+              <h2 class="section-title" style="margin-bottom:12px;">
+                <i data-lucide="activity" class="text-blue"></i>
+                Live Anomaly Monitor
+              </h2>
+              <p class="text-muted" style="font-size:0.8rem; margin-bottom:12px;">AI scans all tanks every 30 seconds. Anomalies trigger instant alerts with confidence scores.</p>
+              <div id="anomaly-log-list" class="custom-scroll" style="max-height:400px; overflow-y:auto;">
+                <div style="text-align:center; padding:30px; color:var(--text-muted);">
+                  <i data-lucide="loader" class="spin" style="width:24px;"></i>
+                  <p style="margin-top:8px;">Starting anomaly monitor...</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Confidence Scoring Panel -->
+            <div class="side-panels">
+              <div class="glass card premium-bevel" style="padding:16px;">
+                <h2 class="section-title" style="margin-bottom:12px;">
+                  <i data-lucide="shield-check" class="text-teal"></i>
+                  AI Confidence Scores
+                </h2>
+                <p class="text-muted" style="font-size:0.8rem; margin-bottom:12px;">Every alert is scored with explainable reasoning.</p>
+                <div id="confidence-panel"></div>
+              </div>
+
+              <!-- Voice Commander -->
+              <div class="glass card premium-bevel border-blue" style="padding:16px;">
+                <h2 class="section-title" style="margin-bottom:12px;">
+                  <i data-lucide="mic" class="text-blue"></i>
+                  Voice Commander
+                </h2>
+                <p class="text-muted" style="font-size:0.8rem; margin-bottom:12px;">Hands-free for -40°F. Ask about tanks, weather, alerts.</p>
+                <button id="voice-btn" onclick="VoiceCommander.toggle()" class="btn btn-primary w-full" style="display:flex; align-items:center; justify-content:center; gap:8px; padding:12px;">
+                  <i data-lucide="mic" style="width:18px;"></i>
+                  Push to Talk
+                </button>
+                <div id="voice-output" style="margin-top:12px; padding:12px; background:rgba(0,0,0,0.3); border-radius:8px; min-height:60px; font-size:0.85rem; color:var(--text-muted);">
+                  Say: "What's my tank level?" or "What's the temperature?"
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Feedback Analytics Dashboard -->
+          <div style="margin-top:24px;">
+            <h2 class="section-title" style="margin-bottom:16px;">
+              <i data-lucide="bar-chart-3" class="text-orange"></i>
+              Feedback Intelligence Analytics
+            </h2>
+            <div id="ai-feedback-analytics"></div>
+          </div>
+
+          <!-- Achievements -->
+          <div class="glass card" style="padding:16px; margin-top:24px;">
+            <h2 class="section-title" style="margin-bottom:12px;">
+              <i data-lucide="trophy" class="text-orange"></i>
+              Achievements
+            </h2>
+            <div id="achievements-grid" class="achievements-grid"></div>
+          </div>
+        </section>
+
+        <!-- Tab: Community Hub -->
+        <section id="tab-community-content" class="tab-content hidden transition-fade">
+          <div class="section-header">
+            <h2 class="section-title">
+              <i data-lucide="users" class="text-teal"></i>
+              Community Fuel Co-op
+            </h2>
+            <div class="nav-badge">0.8 mi Radius</div>
+          </div>
+          
+          <div class="dashboard-grid">
+            <div id="community-marketplace-panel">
+              <!-- Rendered by Marketplace.renderMarketplace() -->
+               <div style="text-align:center; padding:40px;" class="glass card">
+                 <i data-lucide="loader" class="spin" style="width:24px;"></i>
+                 <p>Finding local co-op offers...</p>
+               </div>
+            </div>
+            
+            <div class="side-panels">
+              <div class="glass card premium-bevel">
+                <h3 class="section-title" style="font-size:1rem;">Nearby Neighbors</h3>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                  <div class="contact-item"><span>S. Miller (0.4mi)</span><strong>Active</strong></div>
+                  <div class="contact-item"><span>K. Johnson (2.1mi)</span><strong>Away</strong></div>
+                  <p class="text-muted" style="font-size:0.75rem;">Radius is approximate to protect neighbor privacy.</p>
+                </div>
               </div>
             </div>
           </div>
@@ -287,25 +462,47 @@
               <form class="account-form" onsubmit="event.preventDefault(); alert('Saved!');">
                 <div class="form-group">
                   <label>Full Name</label>
-                  <input type="text" class="input-field" value="Demo User">
+                  <input type="text" class="input-field" value="Demo User" aria-label="Full name">
                 </div>
                 <div class="form-group">
                   <label>Email Address</label>
-                  <input type="email" class="input-field" value="demo@arcticflow.io">
+                  <input type="email" class="input-field" value="demo@arcticflow.io" aria-label="Email address">
                 </div>
                 <button type="submit" class="btn btn-primary">Save Changes</button>
               </form>
+
+              <!-- Dark Mode Override Toggle -->
+              <div style="margin-top:24px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08);">
+                <h3 style="font-size:0.9rem; margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                  <i data-lucide="moon" style="width:16px; color:var(--accent-blue);"></i>
+                  Background Mode
+                </h3>
+                <p class="text-muted" style="font-size:0.8rem; margin-bottom:8px;">Background shifts with day/night cycle. Lock to override.</p>
+                <button id="darkmode-toggle-btn" onclick="toggleDarkModeOverride()" class="btn" style="padding:8px 16px; font-size:0.85rem; background:rgba(255,255,255,0.08); color:var(--text-muted); border-radius:8px;">
+                  🌤️ Auto
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
+        <!-- Tab: Savings & ROI -->
+        <section id="tab-roi-content" class="tab-content hidden transition-fade">
+          <!-- Populated by ROIEngine.renderROIDashboard() -->
+        </section>
+    <div id="voice-hud-overlay" class="voice-hud hidden">
+      <!-- Populated by VoiceHub -->
+    </div>
       </main>
     </div>
     
     <!-- Floating AI Feedback Button -->
-    <button onclick="document.getElementById('ai-feedback-modal').classList.remove('hidden')" class="btn btn-primary pulse-btn" style="position: fixed; bottom: 30px; right: 30px; z-index: 500; border-radius: 50px; padding: 16px 24px;">
-      <i data-lucide="message-square"></i> Give Feedback
-    </button>
+    <!-- Floating Feedback + Voice Buttons -->
+    <div class="floating-actions">
+      <button onclick="document.getElementById('ai-feedback-modal').classList.remove('hidden'); resetFeedbackForm();" class="btn btn-primary pulse-btn floating-btn">
+        <i data-lucide="message-square"></i> Feedback
+      </button>
+    </div>
   </div>
 
   <!-- Modals -->
@@ -342,22 +539,22 @@
     </div>
   </div>
 
-  <!-- AI Feedback Hub Modal -->
+  <!-- AI Feedback Hub Modal (V3 — Real Storage + Sentiment Analysis) -->
   <div id="ai-feedback-modal" class="modal-overlay hidden">
     <div class="modal-content glass pattern-overlay premium-bevel border-blue">
       <div class="modal-header">
-        <h3><i data-lucide="brain-circuit" class="text-blue"></i> App Improvements Hub</h3>
+        <h3><i data-lucide="brain-circuit" class="text-blue"></i> AI Feedback Intelligence</h3>
         <button onclick="document.getElementById('ai-feedback-modal').classList.add('hidden')" class="icon-btn close-btn">
           <i data-lucide="x"></i>
         </button>
       </div>
       <div class="modal-body">
         <p class="text-muted mb-m" style="font-size: 0.9rem;">
-          Help our AI track issues and prioritize features! Are there any bugs, unique Alaskan problems we missed, or improvements you'd like to see?
+          Help our AI track issues and prioritize features. Your input trains the system to build a better app.
         </p>
         <div class="form-group">
           <label>Category</label>
-          <select class="input-field">
+          <select id="feedback-category" class="input-field">
             <option>Feature Request</option>
             <option>Report a Bug</option>
             <option>Praise / Good Review!</option>
@@ -365,19 +562,30 @@
           </select>
         </div>
         <div class="form-group mt-m">
+          <label>Rating</label>
+          <select id="feedback-rating" class="input-field">
+            <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+            <option value="4">⭐⭐⭐⭐ Good</option>
+            <option value="3" selected>⭐⭐⭐ Average</option>
+            <option value="2">⭐⭐ Poor</option>
+            <option value="1">⭐ Terrible</option>
+          </select>
+        </div>
+        <div class="form-group mt-m">
           <label>Your Input</label>
-          <textarea class="input-field" rows="4" placeholder="I need a tracker for..."></textarea>
+          <textarea id="feedback-text" class="input-field" rows="4" placeholder="I need a tracker for..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
-        <button class="btn btn-primary w-full pulse-btn" onclick="document.getElementById('ai-feedback-modal').classList.add('hidden'); alert('Input logged successfully. Our AI engine evaluates all submissions weekly!')">
-          Submit to Engine
+        <button class="btn btn-primary w-full pulse-btn" onclick="submitAIFeedback()">
+          <i data-lucide="brain-circuit" style="width:16px;"></i> Analyze & Submit
         </button>
       </div>
     </div>
   </div>
 
   <script src="app.js"></script>
+  <script src="ai-engine.js"></script>
 </body>
 
 </html>
