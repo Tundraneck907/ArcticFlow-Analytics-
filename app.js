@@ -230,6 +230,15 @@ function initForecastChart() {
   const highs = store.weather.forecast.map(f => f.high);
   const lows = store.weather.forecast.map(f => f.low);
 
+  // Generate Premium SaaS Gradients
+  const gradHigh = ctx.createLinearGradient(0, 0, 0, 300);
+  gradHigh.addColorStop(0, 'rgba(255, 107, 53, 0.6)');
+  gradHigh.addColorStop(1, 'rgba(255, 107, 53, 0.0)');
+
+  const gradLow = ctx.createLinearGradient(0, 0, 0, 300);
+  gradLow.addColorStop(0, 'rgba(74, 144, 226, 0.5)');
+  gradLow.addColorStop(1, 'rgba(74, 144, 226, 0.0)');
+
   forecastChart = new Chart(ctx, {
     type: 'line',
     data: {
@@ -239,29 +248,71 @@ function initForecastChart() {
           label: 'High Temp (°F)',
           data: highs,
           borderColor: '#FF6B35',
-          backgroundColor: 'rgba(255, 107, 53, 0.1)',
+          backgroundColor: gradHigh,
           fill: true,
-          tension: 0.4
+          tension: 0.5,
+          borderWidth: 4,
+          pointBackgroundColor: '#16161A',
+          pointBorderColor: '#FF6B35',
+          pointBorderWidth: 3,
+          pointRadius: 6,
+          pointHoverRadius: 9,
+          pointHoverBackgroundColor: '#FF6B35',
+          pointHoverBorderColor: '#FFF'
         },
         {
           label: 'Low Temp (°F)',
           data: lows,
           borderColor: '#4A90E2',
-          backgroundColor: 'rgba(74, 144, 226, 0.1)',
+          backgroundColor: gradLow,
           fill: true,
-          tension: 0.4
+          tension: 0.5,
+          borderWidth: 4,
+          pointBackgroundColor: '#16161A',
+          pointBorderColor: '#4A90E2',
+          pointBorderWidth: 3,
+          pointRadius: 6,
+          pointHoverRadius: 9,
+          pointHoverBackgroundColor: '#4A90E2',
+          pointHoverBorderColor: '#FFF'
         }
       ]
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: {
+        mode: 'index',
+        intersect: false,
+      },
       plugins: {
-        legend: { labels: { color: '#F3F4F6' } }
+        legend: { 
+          labels: { color: '#F3F4F6', font: { family: 'Inter', size: 13, weight: 'bold' }, padding: 20 },
+          position: 'top'
+        },
+        tooltip: {
+          backgroundColor: 'rgba(22, 22, 26, 0.9)',
+          titleFont: { size: 14, family: 'Inter' },
+          bodyFont: { size: 14, family: 'Inter', weight: 'bold' },
+          padding: 12,
+          cornerRadius: 8,
+          borderColor: 'rgba(255,255,255,0.1)',
+          borderWidth: 1
+        }
       },
       scales: {
-        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9CA3AF' } },
-        y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#9CA3AF' } }
+        x: { 
+          grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, 
+          ticks: { color: '#9CA3AF', font: { size: 12, weight: 'bold' }, padding: 10 } 
+        },
+        y: { 
+          grid: { color: 'rgba(255,255,255,0.03)', drawBorder: false }, 
+          ticks: { color: '#9CA3AF', font: { size: 12, weight: 'bold' }, padding: 10 } 
+        }
+      },
+      animation: {
+        duration: 2000,
+        easing: 'easeOutQuart'
       }
     }
   });
