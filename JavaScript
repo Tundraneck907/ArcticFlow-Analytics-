@@ -1,0 +1,16 @@
+function switchTab(targetTabId) {
+    // 1. Force all sections to disappear and stay out of the layout flow
+    const allSections = document.querySelectorAll('section.tab-content');
+    allSections.forEach(section => {
+        section.style.display = 'none'; 
+        section.setAttribute('aria-hidden', 'true');
+    });
+
+    // 2. Only reveal the specific target
+    const activeSection = document.getElementById(targetTabId);
+    if (activeSection) {
+        activeSection.style.display = 'block';
+        activeSection.setAttribute('aria-hidden', 'false');
+        window.scrollTo(0, 0); // Reset scroll to top
+    }
+}
