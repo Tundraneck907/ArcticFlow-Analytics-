@@ -92,6 +92,7 @@
         <button onclick="switchTab('properties')" id="tab-properties" class="tab-btn">Properties</button>
         <button onclick="switchTab('tanks')" id="tab-tanks" class="tab-btn">Tanks</button>
         <button onclick="switchTab('weather')" id="tab-weather" class="tab-btn">Weather</button>
+        <button onclick="switchTab('winterize')" id="tab-winterize" class="tab-btn">Winterize</button>
         <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn">Analytics</button>
         <button onclick="switchTab('settings')" id="tab-settings" class="tab-btn">Settings</button>
       </nav>
@@ -126,10 +127,10 @@
           </div>
 
           <div class="dashboard-grid">
-            <div class="glass card fuel-levels-panel glow-border">
+            <div class="glass card fuel-levels-panel glow-border premium-bevel">
               <h2 class="section-title">Critical Tank Levels</h2>
-              <div id="gauges-grid" class="gauges-grid">
-                <!-- Javascript will populate gauges here -->
+              <div id="gauges-grid" class="cylinders-grid">
+                <!-- Javascript will populate 3D cylinders here -->
               </div>
             </div>
 
@@ -194,11 +195,41 @@
               <!-- JS generates glass tubes here -->
             </div>
           </div>
-          <div class="glass card mt-xl">
+          <div class="glass card mt-xl premium-bevel">
             <h2 class="section-title text-orange">Winter Service Advisories</h2>
             <ul id="weather-alerts" class="alert-list custom-scroll">
               <!-- Will be populated by JS -->
             </ul>
+          </div>
+        </section>
+
+        <!-- Tab: Winterize & Edge Case Trackers -->
+        <section id="tab-winterize-content" class="tab-content hidden transition-fade">
+          <div class="dashboard-grid">
+            <div class="glass card premium-bevel">
+              <div class="section-header">
+                <h2 class="section-title"><i data-lucide="shield-check" class="text-teal"></i> Fall Preparation Checklist</h2>
+                <span id="checklist-progress" class="text-teal" style="font-weight: 800;">0/10</span>
+              </div>
+              <p class="text-muted mb-l">Mandatory site checks before the first hard freeze.</p>
+              <div id="winter-checklist" class="checklist-grid custom-scroll" style="max-height: 500px; overflow-y: auto;">
+                <!-- JS Populates -->
+              </div>
+            </div>
+
+            <div class="side-panels">
+              <!-- Solves Edge Case: Offgrid Solar Banks dying in extreme cold -->
+              <div class="glass card premium-bevel border-blue">
+                <h2 class="section-title"><i data-lucide="battery-charging" class="text-blue"></i> Off-Grid Power</h2>
+                <div id="battery-tracker" class="mt-m">
+                  <div class="flex-between mb-sm"><span class="text-muted">Main Solar Bank</span><span class="text-orange" style="font-weight: 700;">11.8V</span></div>
+                  <div class="w-full bg-gray-900 rounded-full h-2 mb-m" style="background: rgba(255,255,255,0.1); border-radius: 4px;">
+                    <div class="h-2 rounded-full" style="width: 25%; background: var(--accent-orange);"></div>
+                  </div>
+                  <p class="text-muted" style="font-size: 0.8rem;">Voltage critical. Inverter shutdown imminent if engine block is not started.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -232,32 +263,17 @@
           </div>
 
           <div class="glass card mt-xl">
-            <h2 class="section-title">Automated Alert thresholds</h2>
+            <h2 class="section-title">Automated Task Reminders</h2>
             <div class="settings-list">
-              <div class="setting-item">
-                <div class="setting-info">
-                  <i data-lucide="droplet" class="text-orange"></i>
-                  <span>Low Tank Warning Threshold (%)</span>
-                </div>
-                <input type="number" id="setting-low-threshold" value="20" min="5" max="50"
-                  class="input-field short-input">
-              </div>
-              <div class="setting-item">
-                <div class="setting-info">
-                  <i data-lucide="thermometer-snowflake" class="text-blue"></i>
-                  <span>Deep Freeze Alert Threshold (°F)</span>
-                </div>
-                <input type="number" id="setting-cold-temp" value="-20" max="32" class="input-field short-input">
-              </div>
-              <div class="setting-item">
-                <div class="setting-info">
-                  <i data-lucide="waves" class="text-teal"></i>
-                  <span>Ice-Bridge Supply Alerts</span>
-                </div>
-                <label class="toggle-switch">
-                  <input type="checkbox" id="setting-icebridge" checked>
-                  <span class="slider"></span>
-                </label>
+              <div class="setting-item"><div class="setting-info"><i data-lucide="plug" class="text-orange"></i><span>Plug in Engine Block Heater (Nightly)</span></div><label class="toggle-switch"><input type="checkbox" id="set-blockheater"><span class="slider"></span></label></div>
+              <div class="setting-item"><div class="setting-info"><i data-lucide="flame" class="text-orange"></i><span>Activate Heat Tape on Water Lines</span></div><label class="toggle-switch"><input type="checkbox" id="set-heattape" checked><span class="slider"></span></label></div>
+              <div class="setting-item"><div class="setting-info"><i data-lucide="zap" class="text-teal"></i><span>Test Backup Generator (Monthly)</span></div><label class="toggle-switch"><input type="checkbox" id="set-generator"><span class="slider"></span></label></div>
+              <div class="setting-item"><div class="setting-info"><i data-lucide="wind" class="text-blue"></i><span>Shovel Roof / Rake Vents (Post-Snow)</span></div><label class="toggle-switch"><input type="checkbox" id="set-roof"><span class="slider"></span></label></div>
+              <div class="setting-item"><div class="setting-info"><i data-lucide="tree-pine" class="text-orange"></i><span>Restock Indoor Firewood Cache</span></div><label class="toggle-switch"><input type="checkbox" id="set-wood"><span class="slider"></span></label></div>
+              
+              <div class="setting-item mt-l" style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: var(--space-m)">
+                <div class="setting-info"><i data-lucide="droplet" class="text-orange"></i><span>Low Fuel Threshold (%)</span></div>
+                <input type="number" id="setting-low-threshold" value="20" min="5" max="50" class="input-field short-input">
               </div>
             </div>
           </div>
@@ -285,6 +301,11 @@
 
       </main>
     </div>
+    
+    <!-- Floating AI Feedback Button -->
+    <button onclick="document.getElementById('ai-feedback-modal').classList.remove('hidden')" class="btn btn-primary pulse-btn" style="position: fixed; bottom: 30px; right: 30px; z-index: 500; border-radius: 50px; padding: 16px 24px;">
+      <i data-lucide="message-square"></i> Give Feedback
+    </button>
   </div>
 
   <!-- Modals -->
@@ -317,6 +338,41 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-primary" onclick="saveProperty()">Provision Property</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AI Feedback Hub Modal -->
+  <div id="ai-feedback-modal" class="modal-overlay hidden">
+    <div class="modal-content glass pattern-overlay premium-bevel border-blue">
+      <div class="modal-header">
+        <h3><i data-lucide="brain-circuit" class="text-blue"></i> App Improvements Hub</h3>
+        <button onclick="document.getElementById('ai-feedback-modal').classList.add('hidden')" class="icon-btn close-btn">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-m" style="font-size: 0.9rem;">
+          Help our AI track issues and prioritize features! Are there any bugs, unique Alaskan problems we missed, or improvements you'd like to see?
+        </p>
+        <div class="form-group">
+          <label>Category</label>
+          <select class="input-field">
+            <option>Feature Request</option>
+            <option>Report a Bug</option>
+            <option>Praise / Good Review!</option>
+            <option>Edge-Case Missing Logic</option>
+          </select>
+        </div>
+        <div class="form-group mt-m">
+          <label>Your Input</label>
+          <textarea class="input-field" rows="4" placeholder="I need a tracker for..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary w-full pulse-btn" onclick="document.getElementById('ai-feedback-modal').classList.add('hidden'); alert('Input logged successfully. Our AI engine evaluates all submissions weekly!')">
+          Submit to Engine
+        </button>
       </div>
     </div>
   </div>

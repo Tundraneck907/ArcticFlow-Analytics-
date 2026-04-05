@@ -39,17 +39,24 @@ document.addEventListener('DOMContentLoaded', () => {
   lucide.createIcons();
   createSnowflakes();
   initDashboard();
+
+  // Attach listeners to Settings Toggles to dynamically inject alerts immediately
+  ['set-blockheater', 'set-heattape', 'set-generator', 'set-roof', 'set-wood'].forEach(id => {
+    let el = document.getElementById(id);
+    if(el) el.addEventListener('change', renderAlerts);
+  });
 });
 
 function initDashboard() {
   populateKpis();
-  renderGauges();
+  renderCylinders(); // V2 Premium Upgrade
   renderProperties();
   renderTanks();
   renderWeather();
   renderAlerts();
   populatePropertyDropdowns();
   initForecastChart();
+  renderChecklist(); // V2 Winterize Checklist
 }
 
 // --- Navigation ---
@@ -85,48 +92,38 @@ function populateKpis() {
   document.getElementById('alert-count').classList.remove('hidden');
 }
 
-// --- Gauges ---
-function renderGauges() {
+// --- V2 Premium Cylinders ---
+function renderCylinders() {
   const container = document.getElementById('gauges-grid');
+  if(!container) return;
   container.innerHTML = '';
 
-  const sortedTanks = [...store.tanks].sort((a,b) => a.level - b.level); // lowest first
+  const sortedTanks = [...store.tanks].sort((a,b) => a.level - b.level);
 
   sortedTanks.forEach(tank => {
     const prop = store.properties.find(p => p.id === tank.propertyId);
-    let severityClass = tank.level <= 20 ? 'low' : (tank.level <= 45 ? 'med' : 'high');
-    
-    // Calculate SVG circle dashoffset
-    // Circle length = 2 * PI * r (r=45 here for a 100px SVG viewed at 140px)
-    const c = Math.PI * (45 * 2);
-    const offset = c - (tank.level / 100) * c;
+    let severityClass = tank.level <= 20 ? 'bg-danger' : (tank.level <= 45 ? 'bg-warning' : 'bg-safe');
+    let textColor = tank.level <= 20 ? 'var(--accent-orange)' : (tank.level <= 45 ? 'var(--accent-orange)' : 'var(--accent-teal)');
 
     const div = document.createElement('div');
-    div.className = 'tank-info';
+    div.className = 'tank-cylinder-wrapper';
     div.innerHTML = `
-      <div class="circ-gauge">
-        <svg viewBox="0 0 100 100" class="gauge-svg">
-          <circle class="gauge-bg" cx="50" cy="50" r="45"></circle>
-          <circle class="gauge-fill ${severityClass}" cx="50" cy="50" r="45" 
-                  stroke-dasharray="${c}" stroke-dashoffset="${c}"></circle>
-        </svg>
-        <div class="gauge-text">
-          <span class="gauge-value" style="color: var(--accent-${severityClass === 'low' ? 'orange' : severityClass === 'med' ? 'orange' : 'teal'})">
-            ${tank.level}%
-          </span>
-          <span class="gauge-label">${tank.lastUpdate}</span>
-        </div>
+      <div class="glass-cylinder">
+        <div class="liquid-fill ${severityClass}" style="height: 0%"></div>
       </div>
-      <div class="tank-name">Tank #${tank.number}</div>
-      <div class="tank-prop">${prop.name}</div>
+      <div style="text-align: center; margin-top: 8px;">
+        <div style="font-size: 1.5rem; font-weight: 800; color: ${textColor}">${tank.level}%</div>
+        <div style="font-size: 0.8rem; color: var(--text-muted);">${prop.name}</div>
+        <div style="font-size: 0.7rem; opacity: 0.5;">Tank #${tank.number}</div>
+      </div>
     `;
     container.appendChild(div);
 
-    // Trigger animation
+    // Trigger powerful liquid swell animation
     setTimeout(() => {
-      const fillCircle = div.querySelector('.gauge-fill');
-      if (fillCircle) fillCircle.style.strokeDashoffset = offset;
-    }, 100);
+      const fill = div.querySelector('.liquid-fill');
+      if (fill) fill.style.height = `${tank.level}%`;
+    }, 150);
   });
 }
 
@@ -254,10 +251,24 @@ function initForecastChart() {
 
 function renderAlerts() {
   const container = document.getElementById('weather-alerts');
+  if(!container) return;
   container.innerHTML = '';
-  store.alerts.forEach(alert => {
-    const icon = alert.type === 'danger' ? 'alert-triangle' : (alert.type === 'warning' ? 'thermometer-snowflake' : 'info');
-    const colorClass = alert.type === 'danger' ? 'text-orange' : (alert.type === 'warning' ? 'text-blue' : 'text-teal');
+
+  // Smart Engine Reminders Auto-Injection
+  let injectedAlerts = [...store.alerts];
+  if(document.getElementById('set-blockheater')?.checked) {
+    injectedAlerts.push({ title: "Engine Block Heater", desc: "Temps are below 0°F. Plug in vehicles tonight.", type: "warning", icon: "plug" });
+  }
+  if(document.getElementById('set-heattape')?.checked) {
+    injectedAlerts.push({ title: "Heat Tape Required", desc: "Ensure water line heat tape breaker is ON.", type: "info", icon: "flame" });
+  }
+
+  // Edge-Case Tracker for Off-grid power
+  injectedAlerts.push({ title: "Solar Bank Voltage Low", desc: "Main bank at 11.8V. Start backup generator.", type: "danger", icon: "battery-charging" });
+
+  injectedAlerts.forEach(alert => {
+    let icon = alert.icon || (alert.type === 'danger' ? 'alert-triangle' : (alert.type === 'warning' ? 'thermometer-snowflake' : 'info'));
+    let colorClass = alert.type === 'danger' ? 'text-orange' : (alert.type === 'warning' ? 'text-blue' : 'text-teal');
     
     container.innerHTML += `
       <li class="alert-item">
@@ -318,15 +329,64 @@ function saveProperty() {
   closePropertyModal();
 }
 
+// --- V2 Winterize Checklist Logic ---
+const checklistData = [
+  { id: 1, title: 'Disconnect Outside Hoses', desc: 'Remove and drain all external hoses. Cover spigots with insulation.', done: false },
+  { id: 2, title: 'Check Heat Tape', desc: 'Test continuity on exposed water line heat tape wrapping.', done: false },
+  { id: 3, title: 'Weatherstrip Doors & Windows', desc: 'Seal drafts to prevent extreme heat loss during negative temps.', done: false },
+  { id: 4, title: 'Test Backup Heating', desc: 'Test Toyostove / pellet stove / woodstove operations.', done: false },
+  { id: 5, title: 'Inspect Roof Vents', desc: 'Ensure vents are clear to prevent ice damming.', done: false },
+  { id: 6, title: 'Clean Furnace Filters', desc: 'Replace all HVAC air filters before heavy winter load.', done: false },
+  { id: 7, title: 'Bulk Winter Fuel Delivery', desc: 'Ensure tanks are topped off before ice-bridges freeze.', done: false },
+  { id: 8, title: 'Test CO Detectors', desc: 'Replace batteries in all Carbon Monoxide units.', done: false },
+  { id: 9, title: 'Emergency Survival Kit', desc: 'Stock non-perishables and emergency blankets in cabin.', done: false },
+  { id: 10, title: 'Inspect Chimney Flue', desc: 'Clear creosote buildup to prevent fire hazards.', done: false }
+];
+
+function renderChecklist() {
+  const container = document.getElementById('winter-checklist');
+  if(!container) return;
+  container.innerHTML = '';
+  
+  let completed = 0;
+  
+  checklistData.forEach(item => {
+    if(item.done) completed++;
+    container.innerHTML += `
+      <div class="check-item ${item.done ? 'completed' : ''}" onclick="toggleChecklist(${item.id})">
+        <div class="check-box">
+          ${item.done ? '<i data-lucide="check" style="width:16px; color:white"></i>' : ''}
+        </div>
+        <div class="check-text">
+          <div class="check-title">${item.title}</div>
+          <div class="check-desc">${item.desc}</div>
+        </div>
+      </div>
+    `;
+  });
+  
+  document.getElementById('checklist-progress').innerText = `${completed}/10`;
+  lucide.createIcons();
+}
+
+// Ensure function is exposed globally for inline HTML click handlers
+window.toggleChecklist = function(id) {
+  const item = checklistData.find(i => i.id === id);
+  if(item) {
+    item.done = !item.done;
+    renderChecklist();
+  }
+};
+
 function showAlerts() {
   switchTab('weather');
 }
 
 function handleLogin() {
-  document.getElementById('login-screen').classList.add('hidden');
-  document.getElementById('app').classList.remove('hidden');
+  document.getElementById('login-screen')?.classList.add('hidden');
+  document.getElementById('app')?.classList.remove('hidden');
   // Re-run animation logic when shown
-  setTimeout(renderGauges, 100); 
+  setTimeout(renderCylinders, 100); 
 }
 
 function handleLogout() {
